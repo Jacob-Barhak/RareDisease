@@ -8,7 +8,8 @@ The output of this python script will upload the 2 data tables into a sqlite dat
 - `secondary-screen-dose-response-curve-parameters.csv` file that has medication effect on disease and target  
 - `OmicsSomaticMutationsMatrixDamaging.csv` file that holds medication and target pivot table indicating level of mutation
 
-It will also create a table that merges the data from both tables and outputs a combined table that holds only the most mutated records for medication effect on disease and target 
+It will also create a tables that merges the data from both tables and outputs a combined table that holds only the mutated records for medication effect on disease and target  of a certain level of mutation 0-2. 
+It also creates an aggregated version of these tables. 
 
 LICENSE
 -------
