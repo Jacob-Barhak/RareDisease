@@ -33,10 +33,10 @@ def load_data_to_db():
     mutation_matrix_pivot = pd.read_csv("data" + os.sep + "OmicsSomaticMutationsMatrixDamaging.csv")
     mutation_matrix_pivot.rename(columns={'Unnamed: 0': 'depmap_id'}, inplace=True)
     mutation_matrix = mutation_matrix_pivot.melt(id_vars='depmap_id')
-    mutation_matrix['target'] = mutation_matrix['variable'].str.split(' ').str[0]
+    mutation_matrix['gene'] = mutation_matrix['variable'].str.split(' ').str[0]
     mutation_matrix.to_sql(name="mutation_matrix", con=connection)
     # create indexes on the table for future use
-    for column in ['depmap_id', 'target', 'value']:
+    for column in ['depmap_id', 'gene', 'value']:
         logging.info(f"indexing mutation matrix table {column=}")
         sql = f"CREATE INDEX index_mutation_matrix_{column} ON mutation_matrix ({column});"
         cursor.execute(sql)
@@ -45,10 +45,13 @@ def load_data_to_db():
     del mutation_matrix_pivot, mutation_matrix
     for mutation_level in [2, 0]:
         logging.info(f"create combined mutation table for mutation level {mutation_level}")
+
+        # TODO: Refactor this:
+        # Instead of an inner join, this might a many-to-many join of some kind
+        # https://stackoverflow.com/questions/17774373/sql-join-many-to-many
         sql = f"CREATE TABLE mutated{mutation_level} AS " \
               f"SELECT * FROM response INNER JOIN mutation_matrix " \
               f"ON response.depmap_id = mutation_matrix.depmap_id " \
-              f"AND response.target = mutation_matrix.target " \
               f"WHERE mutation_matrix.value = {mutation_level}"
         cursor.execute(sql)
         for column in index_column_names:
